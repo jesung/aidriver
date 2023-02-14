@@ -5,7 +5,6 @@ import os
 import platform
 import socket
 from sim_info import info
-# import time
 
 try:
     if platform.architecture()[0] == "64bit":
@@ -20,12 +19,12 @@ except Exception as e:
 
 
 # declare global variables
-l_x = 0
-l_y = 0
-l_z = 0
-l_heading = 0
-l_speed = 0
-sock = None
+l_x = None
+l_y = None
+l_z = None
+l_heading = 0.0
+l_speed = 0.0
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 flag = True
 host = "127.0.0.1"  # The server's hostname or IP address
 port = 65431  # The port used by the server
@@ -84,7 +83,7 @@ def acUpdate(deltaT):
     ac.setText(l_heading, heading)
     ac.setText(l_speed, speed)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # use flag to connect once
     if flag:
@@ -92,8 +91,9 @@ def acUpdate(deltaT):
             # try connecting to socket server
             sock.connect((host, port))
             flag = False
+            ac.console("AIDriver: Socket connection successful")
         except:
-            ac.console("Could not connect to host")
+            ac.console("AIDriver: Could not connect to host")
     else:
         try:
             # Send current world position and car state. Note that socket.sendall requires bytes
@@ -101,7 +101,7 @@ def acUpdate(deltaT):
             # data = sock.recv(1024)
             # ac.console(f"Received {data!r}")
         except:
-            ac.console("Could not connect to host")
+            ac.console("AIDriver: Could not send data")
             
     # laptime = ac.getCarState(0, acsys.CS.LapTime)
     # ac.setText(laptime, "Laptime: {}".format(laptime))
