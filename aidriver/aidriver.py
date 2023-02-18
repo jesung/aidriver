@@ -22,8 +22,9 @@ except Exception as e:
 l_x = None
 l_y = None
 l_z = None
-l_heading = 0.0
-l_speed = 0.0
+l_heading = None
+l_speed = None
+l_position = None
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 flag = True
 host = "127.0.0.1"  # The server's hostname or IP address
@@ -31,12 +32,12 @@ port = 65431  # The port used by the server
 
 
 def acMain(ac_version):
-    global l_x, l_y, l_z, l_heading, l_speed
+    global l_x, l_y, l_z, l_heading, l_speed, l_position
 
     # create app and update visual settings
     app_window = ac.newApp("aidriver")
     ac.setSize(app_window, 200, 200)
-    ac.setBackgroundOpacity(app_window, 1.0)
+    ac.setBackgroundOpacity(app_window, 0.8)
     ac.setBackgroundColor(app_window, 255, 255, 255)
     ac.setFontSize(app_window, 40)
         
@@ -46,22 +47,19 @@ def acMain(ac_version):
     l_z = ac.addLabel(app_window, "Z: ")
     l_heading = ac.addLabel(app_window, "Heading: ")
     l_speed = ac.addLabel(app_window, "Speed: ")
-    ac.setPosition(l_x, 3, 30)
-    ac.setPosition(l_y, 3, 60)
-    ac.setPosition(l_z, 3, 90)
-    ac.setPosition(l_heading, 3, 120)
-    ac.setPosition(l_speed, 3, 150)
-    ac.setFontSize(l_x, 30)
-    ac.setFontSize(l_y, 30)
-    ac.setFontSize(l_z, 30)
-    ac.setFontSize(l_heading, 30)
-    ac.setFontSize(l_speed, 30)
+    l_position = ac.addLabel(app_window, "Position: ")
+    ac.setPosition(l_x, 3, 25)
+    ac.setPosition(l_y, 3, 50)
+    ac.setPosition(l_z, 3, 75)
+    ac.setPosition(l_heading, 3, 100)
+    ac.setPosition(l_speed, 3, 125)
+    ac.setPosition(l_position, 3, 150)
         
     return "AI driver"
 
 
 def acUpdate(deltaT):
-    global l_x, l_y, l_z, sock, host, port, flag, l_heading, l_speed
+    global l_x, l_y, l_z, sock, host, port, flag, l_heading, l_speed, l_position
     
     # get updated states from game
     # world_position = ac.getCarState(0, acsys.CS.WorldPosition)
@@ -69,19 +67,22 @@ def acUpdate(deltaT):
     heading = info.physics.heading
     # pitch = info.physics.pitch
     # roll = info.physics.roll
-    speed = ac.getCarState(0, acsys.CS.SpeedKMH)
+    speed = ac.getCarState(ac.getFocusedCar(), acsys.CS.SpeedKMH)
+    position = ac.getCarState(ac.getFocusedCar(), acsys.CS.NormalizedSplinePosition)
     
     # display to app window
     x = "{value:.2f}".format(value=world_position[0])
     y = "{value:.2f}".format(value=world_position[1])
     z = "{value:.2f}".format(value=world_position[2])
-    heading = "{value:.4f}".format(value=heading)   # range [-pi, pi]
+    heading = "{value:2f}".format(value=heading)   # range [-pi, pi]
     speed = "{value:.2f}".format(value=speed)
-    ac.setText(l_x, x)   
-    ac.setText(l_y, y)
-    ac.setText(l_z, z)
-    ac.setText(l_heading, heading)
-    ac.setText(l_speed, speed)
+    position = "{value:.3f}".format(value=position)
+    ac.setText(l_x, "X: " + x)   
+    ac.setText(l_y, "Y: " + y)
+    ac.setText(l_z, "Z: " + z)
+    ac.setText(l_heading, "Heading: " + heading)
+    ac.setText(l_speed, "Speed: " + speed)
+    ac.setText(l_position, "Position: " + position)
 
     # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -97,7 +98,7 @@ def acUpdate(deltaT):
     else:
         try:
             # Send current world position and car state. Note that socket.sendall requires bytes
-            sock.sendall(str.encode(x + ',' + y + ',' + z + ',' + heading + ',' + speed + ','))
+            sock.sendall(str.encode(x + ',' + y + ',' + z + ',' + heading + ',' + speed + ',' + position + ','))
             # data = sock.recv(1024)
             # ac.console(f"Received {data!r}")
         except:
