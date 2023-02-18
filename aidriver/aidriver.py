@@ -76,7 +76,7 @@ def acUpdate(deltaT):
     z = "{value:.2f}".format(value=world_position[2])
     heading = "{value:2f}".format(value=heading)   # range [-pi, pi]
     speed = "{value:.2f}".format(value=speed)
-    position = "{value:.3f}".format(value=position)
+    position = "{value:.4f}".format(value=position)
     ac.setText(l_x, "X: " + x)   
     ac.setText(l_y, "Y: " + y)
     ac.setText(l_z, "Z: " + z)
