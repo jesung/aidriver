@@ -69,14 +69,24 @@ def acUpdate(deltaT):
     # roll = info.physics.roll
     speed = ac.getCarState(ac.getFocusedCar(), acsys.CS.SpeedKMH)
     position = ac.getCarState(ac.getFocusedCar(), acsys.CS.NormalizedSplinePosition)
+    lap_time = ac.getCarState(ac.getFocusedCar(), acsys.CS.LapTime)
+    throttle = ac.getCarState(ac.getFocusedCar(), acsys.CS.Gas)
+    brake = ac.getCarState(ac.getFocusedCar(), acsys.CS.Brake)
+    steer = ac.getCarState(ac.getFocusedCar(), acsys.CS.Steer)
     
     # display to app window
     x = "{value:.2f}".format(value=world_position[0])
     y = "{value:.2f}".format(value=world_position[1])
     z = "{value:.2f}".format(value=world_position[2])
-    heading = "{value:2f}".format(value=heading)   # range [-pi, pi]
+    heading = "{value:.2f}".format(value=heading)   # range [-pi, pi]
     speed = "{value:.2f}".format(value=speed)
-    position = "{value:.4f}".format(value=position)
+    position = "{value:.3f}".format(value=position)
+    lap_time = "{value:d}".format(value=lap_time)
+    throttle = "{value:.2f}".format(value=throttle)
+    brake = "{value:.2f}".format(value=brake)
+    steer = "{value:.2f}".format(value=steer)
+    
+    
     ac.setText(l_x, "X: " + x)   
     ac.setText(l_y, "Y: " + y)
     ac.setText(l_z, "Z: " + z)
@@ -98,11 +108,13 @@ def acUpdate(deltaT):
     else:
         try:
             # Send current world position and car state. Note that socket.sendall requires bytes
-            sock.sendall(str.encode(x + ',' + y + ',' + z + ',' + heading + ',' + speed + ',' + position + ','))
+            sock.sendall(str.encode(x + ',' + y + ',' + z + ',' + heading + ',' + speed + ',' + position + ',' + lap_time + ','
+                                    + throttle + ',' + brake + ',' + steer + ','))
             # data = sock.recv(1024)
             # ac.console(f"Received {data!r}")
         except:
-            ac.console("AIDriver: Could not send data")
+            pass
+            # ac.console("AIDriver: Could not send data")
             
     # laptime = ac.getCarState(0, acsys.CS.LapTime)
     # ac.setText(laptime, "Laptime: {}".format(laptime))
